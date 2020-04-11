@@ -1,54 +1,128 @@
-#include <iostream>
-class DateTime {
-private:
-  static int sth;
-  int year, month, day;
-  int hour, minute, second;
-public:
-  DateTime();
-  DateTime(int y, int m, int d, int hour, int minute, int second); 
-  DateTime(const DateTime &dt);
-  ~DateTime();
-  static void showTime();
-  void showMoon();  //作业：将当前公历转换为农历显示出来 
-};
+/************************ 
+    
+改造想法，把这个改成可以翻动的日历，参考test1。
+	 
+*************************/
+//日历：打印指定月份 
 
-int DateTime::sth = 0;
+#include<stdio.h>
+#include<stdlib.h>
+int W_Year(int y);
+int Is_leap(int y);
+int Max_Day(int y,int m,int x);
+int W_Year(int y,int m);
+void Month_Printf(int y,int Max_Day);
 
-int main() {
-  DateTime dt, dt1(2020, 3, 27, 10, 40, 55);
-  DateTime dt2(dt), &dt3 = dt;
-  DateTime *dt4 = &dt;
-  dt.showTime();
-  dt1.showTime();
-  dt2.showTime();
-  dt3.showTime();
-  dt4->showTime();
-  return 0;
-}
-DateTime::DateTime()
+/***********************************************************/
+
+int main()
 {
-  year = 2020; month = 3; day = 20;
-  hour = 11; minute = 27; second = 55;
-  sth = 11;
+	int y,m,d,w,max;int x;char ch,temp;
+	printf("Year Month:");
+	scanf("%d %d", &y, &m);
+	//while((ch = getchar()) != '\n' && ch != EOF);
+	//while(1) 
+ //{
+	x=Is_leap(y);
+	w=W_Year(y,m);
+	max=Max_Day(y,m,x);
+    Month_Printf(w,max);   
+    /* 实现导航  */
+    //scanf("%c",&temp);
+    //while((ch = getchar()) != '\n' && ch != EOF);
+    //ch=getchar();
+    /*switch(ch){
+    case 27:exit(0);break;//Esc
+    case -32:ch=getchar();break;//Navigator
+    if(ch==77)
+    {//Right
+       y+=(m==12)?1:0;
+       m=m%12+1;
+    }
+    else if(ch==75)
+    {//Left
+       y-=(m==1)?1:0;
+       m=(m-2+12)%12+1;
+    }
+    else if(ch==72)
+    {//Up
+       y--;
+    }
+    else if(ch==80)
+    {//Down
+       y++;
+    }
+    default:printf("Illeagle input");break;
+    } */
+ //}	
+	return 0;
 }
-DateTime::DateTime(int y, int m, int d, int hour, int minute, int second)
+
+/**************************函数*******************************/ 
+
+int Is_leap(int y)//判断是否是闰年，便于打印2月， 
 {
-  year = y; month = m; day = d;
-  this->hour = hour; this->minute = minute; this->second = second;
+	if( y%400==0 || (y%4==0&&y%100!=0) ) return 1;
+	else return 0;
 }
-DateTime::DateTime(const DateTime &dt)
+
+int W_Year(int y, int m)//求出这月的1号是周几 
 {
-  year = dt.year; month = dt.month; day = dt.day;
-  hour = dt.hour; minute = dt.minute; second = dt.second;
+	int w,c;
+	if(m==1||m==2)
+	{
+		m+=12;
+		y--;
+	}
+	c=y/100;
+	y=y%100;
+	w=y+y/4+c/4-2*c+(13*(m+1))/5;
+	if(w<0)
+	{
+		while(w<0) w+=7;
+	}
+	if(w>7)
+	{
+		while(w>7) w-=7;
+	}
+	return w;		
 }
-DateTime::~DateTime() 
+
+
+int Max_Day(int y,int m,int x)//该月最大天数 
 {
-  std::cout << " Go die, Ha~Ha~" << std::endl;
+	int Max[12]={31,28,31,30,31,30,31,31,30,31,30,31};
+	if(x)Max[1]=29;
+	return Max[m-1];
 }
-void DateTime::showTime()
+
+
+void Month_Printf(int w,int Max_Day)//打印日历 
 {
-  printf("当前时间：%d/%d/%d %d:%d:%d\n", year, month, day, hour, minute, second);
-  std::cout << sth << std::endl;
+	int i,j;
+	int m=0,n=0,k=1;
+	printf("\nSUN MON TUE WED THU FRI SAT\n");
+	char space=' ';
+	for(i=0;i<w;i++) 
+	{
+		printf("%-4c",space);
+		m++;
+	}
+	
+	while(k<=Max_Day)
+	{
+		for(m;m<7;m++)
+		{
+		   printf("%-4d",k);
+		   k++;
+		   if(k>Max_Day)break;	
+		}
+		m=0;
+		printf("\n");
+	}
+	/*printf("Left....Prev Month\n");
+    printf("Right...Next Month\n");
+    printf("Up......Prev Year\n");
+    printf("Down....Next Year\n");
+    printf("Esc.....Exit\n");*/
 }
- 
