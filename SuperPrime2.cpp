@@ -1,30 +1,42 @@
-//作业：完成以下框架的代码细节，程序能编译运行得到正确结果 
+//作业：面向对象设计以下框架的代码细节，程序能编译运行得到正确结果 
 #include <iostream>
-class SuperPrime {
+class Prime {
   public:
-  	SuperPrime():number(0) {
+  	Prime():number(0) {
 	}
-  	~SuperPrime() {
+  	Prime(int n):number(n) {
 	}
-  	bool isSuperPrime() {
-  	  split();
-  	  int a = sum();
-	  int b = multi();
-	  int c = squareSum();
-	  if (isPrime(number) && isPrime(a) && isPrime(b) && isPrime(c))
-	    return true; 
+	~Prime() {
+	}
+  	bool isPrime() { 
+  	  //2到number-1的因子 
   	  return false;
 	}
   private:
   	const int number;
-  	int N[100], size;
-  	bool isPrime(int n) { 
-  	
+}; 
+class SuperPrime : public Prime {
+  public:
+  	SuperPrime():Prime(0), pset(3) {  //为什么必须有？ 
+  	}
+  	SuperPrime(int n):Prime(n), pset(3) {
+	  // number split into N
+	  int temp = n;
+	  while(temp > 0) {
+	  	int t = temp % 10;
+	  	temp /= 10;
+	  	pset.add(t);  //作业：单个数字为对象？还是和/积/平方和为对象？ 
+	  } 
+	}
+  	~SuperPrime() {
+	}
+  	bool isSuperPrime() {
+	  if (Prime::isPrime() && pset.isAllPrime())
+	    return true; 
   	  return false;
 	}
-	void split() {
-	  // number split into N
-	}
+  private:
+  	PrimeSet pset;
 	int sum() {
 	  return 0;
 	}
@@ -35,17 +47,59 @@ class SuperPrime {
 	  return 0;
 	}
 };
-class Set {
+class PrimeSet {
   public:
-  	Set(int from, int to) {
-  	  size = 0;
+  	PrimeSet(int size) {
+  	  //集合的构造什么？ 
+  	  N = new Prime*[size];
+  	  this->size = size;
+  	  index = 0;
 	}
-  	~Set() {
+	~PrimeSet() {
+  	  for (int i = 0; i < index; ++i)  //销毁对象 
+		delete N[i]; 
+	  delete[] N;
+	}
+ 	int count() {
+  	  int count = 0;
+  	  for (int i = 0; i < size; i++)
+  	    if(set[i]->isSuperPrime())
+  	      count += 1;
+	  return count; 
+	}
+
+	bool add(int n) {
+	  if(index == size)  return false;
+	  Prime *p = new Prime(n);
+	  N[index] = p;
+	  index += 1;
+	  return true;
+	}
+	bool isAllPrime() {
+	  for(int i = 0; i < index; i++)
+	    if (!N[i]->isPrime())
+	      return false;
+	  return true;
+	} 
+  private:
+  	Prime **set;
+	int size, index;
+};
+class SuperPrimeSet {
+  public:
+  	SuperPrimeSet(int from, int to) {
+  	  size = to - from;
+  	  for (int i = from; i < to; i++)
+  	    set[i-from] = new SuperPrime(i);
+	}
+  	~SuperPrimeSet() {
+  	  for(int i = 0; i < size; i++)
+  	    delete set[i];
 	}
   	int count() {
   	  int count = 0;
   	  for (int i = 0; i < size; i++)
-  	    if(set[i].isSuperPrime())
+  	    if(set[i]->isSuperPrime())
   	      count += 1;
 	  return count; 
 	}
@@ -59,12 +113,14 @@ class Set {
 	  return sum; 
 	}
   private:
-  	SuperPrime set[1000];
-  	int size;
+  	SuperPrime **set;
+  	int size, index;
 };
 int main() {
-  Set ss(100, 999);
-  std::cout << "How Many: " << ss.count() << std::endl;
-  std::cout << "Sum is " << ss.sum() << std::endl;
+  SuperPrime sp(113);
+  if (sp.isSuperPrime())
+    std::cout << "113 is SuperPrime" << std::endl;
+  else
+    std::cout << "113 is NOT SuperPrime" << std::endl;
   return 0;
 }
