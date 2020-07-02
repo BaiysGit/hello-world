@@ -1,42 +1,155 @@
-#include <iostream>
-#include <vector>
-/** 
-  * 定义素数对象
-  */
-class Prime {
+//重新设计下面的代码，使其可以理大数的素数与超级素数
+//同时仔细理面向对象的编程式 
+#include<iostream>
+template <class Big>
+class BigPrime{
 public:
-  Prime(int n) : num_(n) {
+  BigPrime(int n) : num(n){
   }
-  Prime(const Prime &obj) : num_(obj.num_) {
-  }
-  ~Prime() {
-  }
-  bool isPrime() const {  //常函数 
+  virtual bool isPrime() const {
     return false;
   }
-  Prime& operator= (const Prime &obj) {
-    // this->num_ = obj.num_;
-    return *this;
-  }
+    BigPrime(Big n) : num(n){ }
+    virtual bool isPrime() const {
+        int i;
+        int number = num;
+        for(i = 2; i < number; i++){
+            if(number % i == 0) break;
+        }
+        if(i != number) return false;
+        return true;
+    }
 private:
-  const unsigned int num_;  //素数的属性是常量 
+  const int num;
 }; 
-/**
-  * 这是一个统计素数数量的程序
-  * 使用了STL的容器/模板技术/函数对象
-  */ 
-int main() {
-  //构造素数对象的集合 
-  std::vector<Prime> nums;
-  Prime p(2);       //用2构造一个对象 
-  nums.push_back(p); //把对象放入集合。   问：上下2个对象是同一个对象吗？ 
-  // delete p;  // 我怎么通知nums，对象被干掉了？ 
-  //遍历素数对象集合，统计素数数量并输出 
-  int count = 0;
-  for (std::vector<Prime>::iterator it = nums.begin(); it != nums.end(); ++it) {
-    if (it->isPrime())  //判断对象是否为素数 。   it对象“等价”p对象 
-      count += 1;
+class BigSuperPrime : public BigPrime {
+    const Big num;
+};
+template <class Big>
+class BigSuperPrime : public BigPrime<Big> {
+public:
+  BigSuperPrime(int n) : BigPrime(n), num(n){
   }
-  std::cout << "How many : " << count << std::endl;
+  virtual bool isPrime() const {
+    return true;
+  }
+    BigSuperPrime(Big n) : BigPrime<Big>(n), num(n){
+        int number = n;
+        int t;
+        int Sum = 0, Multi = 1, SquareSum = 0;
+        while(number >= 10){
+            t = number % 10;
+            number = number/10;
+            Sum += t;
+            Multi *= t;
+            SquareSum += (t*t);
+        }
+        Sum += number;
+        Multi *= number;
+        SquareSum += (number * number);
+        sum = new BigPrime<Big>(Sum);
+        multi = new BigPrime<Big>(Multi);
+        square = new BigPrime<Big>(SquareSum);
+    }
+    virtual ~BigSuperPrime(){
+        delete sum;
+        delete multi;
+        delete square;
+    }
+    virtual bool isPrime() const {
+        if(BigPrime<Big>::isPrime()
+           &&sum->isPrime()
+           && multi->isPrime()
+           && square->isPrime()) return true;
+        return false;
+    }
+private:
+  const int num;
+    const Big num;
+    const BigPrime<Big> *sum;
+    const BigPrime<Big> *multi;
+    const BigPrime<Big> *square;
+};
+template <class T>
+class Set {
+class Set{
+public:
+  Set(int sz);
+  ~Set();
+  bool add(T *bp);
+  bool remove(T *bp);
+  int count() const {
+  	int ret = 0;
+  	for (int i = 0; i < index; i++) {
+  	  if (pset[i]->isPrime())
+  	    ret += 1;
+	  }
+  	return ret;
+  }
+  int sum() const {
+  	return 0;
+  } 
+    Set(int sz);
+    ~Set();
+    bool add(T *bp);
+    int count() const {
+        int a = 0;
+        for(int i = 0; i < index; i++){
+            if(pset[i]->isPrime()) a++;
+        }
+        return a;
+    }
+    int sum() const {
+        return 0;
+    }
+private:
+  T **pset;
+  int size, index;
+    T **pset;
+    int size, index;
+};
+
+int main() 
+{
+  Set<BigPrime> set(1000);
+  BigSuperPrime bp(2), bp1(3);
+  set.add(&bp);
+  set.add(&bp1);
+  std::cout << set.count() << std::endl;
   return 0;
 } 
+    Set< BigPrime<double> > set(1000);
+    BigSuperPrime<double> bp(200), bp1(113);
+    set.add(&bp);
+    set.add(&bp1);
+    std::cout << set.count() << std::endl;
+    return 0;
+}
+
+template <class T>
+Set<T>::Set(int sz):size(sz) {
+  index = 0;
+  pset = new T*[size];  //分配存储空间 
+bool Set<T>::add(T *bp) {
+    if(index > size) return false;
+    pset[index] = bp;
+    index++;
+    return true;
+}
+
+template <class T>
+Set<T>::~Set() {
+  delete[] pset;  //回收 
+Set<T>::Set(int sz) : size(sz) {
+    index = 0;
+    pset = new T*[size];
+}
+
+template <class T>
+bool Set<T>::add(T *bp) {
+  pset[index++] = bp;
+  return true;
+Set<T>::~Set() 
+{
+    delete[] pset;
+}
